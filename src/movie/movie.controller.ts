@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
 import { MovieService } from './movie.service';
+import { CreateMovieDto } from './dto/create-movie-dto';
+import { UpdateMovieDto } from './dto/update-movie-dto';
 
 @Controller('movie')
+@UseInterceptors(ClassSerializerInterceptor)
 export class MovieController {
   constructor(private readonly movieService: MovieService) { }
   // 읽기: 전체 가져오기
@@ -22,18 +25,18 @@ export class MovieController {
   // 생성
   @Post()
   postMovie(
-    @Body('title') title: string,
+    @Body() body: CreateMovieDto
   ) {
-    return this.movieService.createMovie(title);
+    return this.movieService.createMovie(body);
   }
 
   // 수정
   @Patch(':id')
   patchMovie(
     @Param('id') id: string,
-    @Body('title') title: string,
+    @Body() body: UpdateMovieDto,
   ) {
-    return this.movieService.updateMovie(+id, title);
+    return this.movieService.updateMovie(+id, body);
   }
 
   // 삭제
