@@ -1,24 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie-dto';
 import { UpdateMovieDto } from './dto/update-movie-dto';
-import { Movie, Series } from './entity/movie.entity';
+import { Movie } from './entity/movie.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
+import { MovieDetail } from './entity/movie-detail.entity';
 
 @Injectable()
 export class MovieService {
   constructor(
     @InjectRepository(Movie)
     private readonly moiveRepository: Repository<Movie>,
-    @InjectRepository(Series)
-    private readonly seriesRepository: Repository<Series>,
+    @InjectRepository(MovieDetail)
+    private readonly moiveDetailRepository: Repository<MovieDetail>,
   ) { }
 
   async getManyMovies(title?: string) {
     /// 나중에 title 필터 기능 추가하기
     if (!title) {
       return [
-        await this.moiveRepository.find(),
+        await this.moiveRepository.find({
+          relations: ['detail'],
+        }),
         await this.moiveRepository.count()
       ];
     }
@@ -26,13 +29,18 @@ export class MovieService {
     return this.moiveRepository.findAndCount({
       where: {
         title: Like(`%${title}%`),
-      }
+      },
+      relations: ['detail'],
     });
   }
 
   async getMovieById(id: number) {
-    // const movie = this.movies.find((m) => m.id == +id);
-    const movie = await this.moiveRepository.findOne({ where: { id } });
+    const movie = await this.moiveRepository.findOne({
+      where: {
+        id,
+      },
+      relations: ['detail'],
+    });
 
     if (!movie) {
       throw new NotFoundException('존재하지 않는 ID 값의 영화입니다.')
@@ -42,18 +50,14 @@ export class MovieService {
   }
 
   async createMovie(createMovieDto: CreateMovieDto) {
-    const movie = await this.moiveRepository.save({
-      ...createMovieDto,
-      runtime: 100,
+    const movieDetail = await this.moiveDetailRepository.save({
+      detail: createMovieDto.detail,
     });
 
-    return movie;
-  }
-
-  async createSeries(createSeriesDto: CreateMovieDto) {
     const movie = await this.moiveRepository.save({
-      ...createSeriesDto,
-      seriesCount: 16,
+      title: createMovieDto.title,
+      genre: createMovieDto.genre,
+      detail: movieDetail,
     });
 
     return movie;

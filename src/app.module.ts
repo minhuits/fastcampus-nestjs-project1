@@ -3,7 +3,8 @@ import { MovieModule } from './movie/movie.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as schema from 'joi';
-import { Content, Movie, Series } from './movie/entity/movie.entity';
+import { Movie } from './movie/entity/movie.entity';
+import { MovieDetail } from './movie/entity/movie-detail.entity';
 
 @Module({
   imports: [
@@ -28,9 +29,7 @@ import { Content, Movie, Series } from './movie/entity/movie.entity';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [
-          Movie,
-          Series,
-          Content,
+          Movie, MovieDetail
         ],
         synchronize: true,
       }),
