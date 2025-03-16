@@ -1,16 +1,22 @@
-import { Exclude, Expose, Transform } from "class-transformer";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, VersionColumn } from "typeorm";
 
-// @Exclude()
+@Entity()
 export class Movie {
+  @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
   title: string;
+
+  @Column()
   genre: string;
 
-  // @Expose()
-  // expose:string;
-  
-  // @Transform(
-  //   ({value}) => value.toString().toUpperCase(),
-  // )
-  // transform:string;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @VersionColumn()
+  version: number;
 }
