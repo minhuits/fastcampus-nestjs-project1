@@ -67,19 +67,33 @@ export class MovieService {
     const movie = await this.moiveRepository.findOne({
       where: {
         id,
-      }
+      },
+      relations: ['detail'],
     });
 
     if (!movie) {
       throw new NotFoundException('존재하지 않는 ID 값의 영화입니다.')
     }
 
-    this.moiveRepository.update({ id }, updateMovieDto);
+    const { detail, ...movieRest } = updateMovieDto;
+
+    this.moiveRepository.update(
+      { id },
+      movieRest,
+    );
+
+    if (detail) {
+      await this.moiveDetailRepository.update(
+        { id: movie.detail.id },
+        { detail },
+      );
+    }
 
     const newMovie = await this.moiveRepository.findOne({
       where: {
         id,
-      }
+      },
+      relations: ['detail'],
     });
 
     return newMovie;
@@ -89,7 +103,8 @@ export class MovieService {
     const movie = await this.moiveRepository.findOne({
       where: {
         id,
-      }
+      },
+      relations: ['detail']
     });
 
     if (!movie) {
@@ -97,6 +112,7 @@ export class MovieService {
     }
 
     await this.moiveRepository.delete(id);
+    await this.moiveDetailRepository.delete(movie.detail.id);
 
     return id;
   }
