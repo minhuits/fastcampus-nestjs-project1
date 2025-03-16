@@ -5,6 +5,7 @@ import { Movie } from './entity/movie.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Like, Repository } from 'typeorm';
 import { MovieDetail } from './entity/movie-detail.entity';
+import { Director } from 'src/director/entitiy/director.entity';
 
 @Injectable()
 export class MovieService {
@@ -13,6 +14,8 @@ export class MovieService {
     private readonly moiveRepository: Repository<Movie>,
     @InjectRepository(MovieDetail)
     private readonly moiveDetailRepository: Repository<MovieDetail>,
+    @InjectRepository(MovieDetail)
+    private readonly directorRepository: Repository<Director>,
   ) { }
 
   async findAll(title?: string) {
@@ -50,14 +53,23 @@ export class MovieService {
   }
 
   async create(createMovieDto: CreateMovieDto) {
-    const movieDetail = await this.moiveDetailRepository.save({
-      detail: createMovieDto.detail,
+    const director = await this.directorRepository.findOne({
+      where: {
+        id: createMovieDto.directorId,
+      },
     });
+
+    if (!director) {
+      throw new NotFoundException('존재하지 않는 ID의 감독입니다!')
+    }
 
     const movie = await this.moiveRepository.save({
       title: createMovieDto.title,
       genre: createMovieDto.genre,
-      detail: movieDetail,
+      detail: {
+        detail: createMovieDto.detail,
+      },
+      director,
     });
 
     return movie;
@@ -71,15 +83,35 @@ export class MovieService {
       relations: ['detail'],
     });
 
+    let newDirector;
     if (!movie) {
       throw new NotFoundException('존재하지 않는 ID 값의 영화입니다.')
     }
 
-    const { detail, ...movieRest } = updateMovieDto;
+    const { detail, directorId, ...movieRest } = updateMovieDto;
+
+    if (directorId) {
+      const director = await this.directorRepository.findOne({
+        where: {
+          id: directorId,
+        },
+      });
+
+      if (!director) {
+        throw new NotFoundException('존재하지 않는 ID 값의 감독입니다.');
+      }
+
+      newDirector = director;
+    }
+
+    const movieUpdateFields = {
+      ...movieRest,
+      ...(newDirector && { director: newDirector }),
+    };
 
     this.moiveRepository.update(
       { id },
-      movieRest,
+      movieUpdateFields,
     );
 
     if (detail) {
@@ -93,7 +125,7 @@ export class MovieService {
       where: {
         id,
       },
-      relations: ['detail'],
+      relations: ['detail', 'director'],
     });
 
     return newMovie;
