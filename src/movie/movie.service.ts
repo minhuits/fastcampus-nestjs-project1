@@ -23,7 +23,7 @@ export class MovieService {
     if (!title) {
       return [
         await this.moiveRepository.find({
-          relations: ['detail'],
+          relations: ['director'],
         }),
         await this.moiveRepository.count()
       ];
@@ -33,7 +33,7 @@ export class MovieService {
       where: {
         title: Like(`%${title}%`),
       },
-      relations: ['detail'],
+      relations: ['director'],
     });
   }
 
@@ -42,7 +42,7 @@ export class MovieService {
       where: {
         id,
       },
-      relations: ['detail'],
+      relations: ['detail', 'director'],
     });
 
     if (!movie) {
