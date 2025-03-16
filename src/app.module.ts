@@ -3,7 +3,7 @@ import { MovieModule } from './movie/movie.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as schema from 'joi';
-import { Movie } from './movie/entity/movie.entity';
+import { Content, Movie, Series } from './movie/entity/movie.entity';
 
 @Module({
   imports: [
@@ -28,7 +28,9 @@ import { Movie } from './movie/entity/movie.entity';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         entities: [
-          Movie
+          Movie,
+          Series,
+          Content,
         ],
         synchronize: true,
       }),
@@ -36,17 +38,8 @@ import { Movie } from './movie/entity/movie.entity';
       inject: [ConfigService]
     }),
 
-    // TypeOrmModule.forRoot({
-    //   type: process.env.DB_TYPE as "postgres",
-    //   host: process.env.DB_HOST,
-    //   port: parseInt(process.env.DB_PORT as string),
-    //   username: process.env.DB_USERNAME,
-    //   password: process.env.DB_PASSWORD,
-    //   database: process.env.DB_DATABASE,
-    //   entities: [],
-    //   synchronize: true,
-    // }),
     MovieModule
   ],
 })
+
 export class AppModule { }

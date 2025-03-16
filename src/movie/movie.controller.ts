@@ -30,6 +30,14 @@ export class MovieController {
     return this.movieService.createMovie(body);
   }
 
+  // 생성
+  @Post()
+  postSeries(
+    @Body() body: CreateMovieDto
+  ) {
+    return this.movieService.createSeries(body);
+  }
+
   // 수정
   @Patch(':id')
   patchMovie(
