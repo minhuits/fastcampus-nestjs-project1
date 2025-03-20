@@ -66,7 +66,9 @@ export class AuthService {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>(envVariablesKeys.refreshTokenSecret),
+        secret: this.configService.get<string>(
+          isRefreshToken ? envVariablesKeys.refreshTokenSecret : envVariablesKeys.accessTokenSecret,
+        ),
       });
 
       if (isRefreshToken) {
@@ -78,7 +80,7 @@ export class AuthService {
           throw new BadRequestException('ACCESS 토큰을 입력 해주세요!');
         }
       }
-      
+
       return payload;
     } catch (e) {
       throw new UnauthorizedException('토큰이 만료됐습니다!');
