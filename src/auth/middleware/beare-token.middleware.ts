@@ -21,7 +21,7 @@ export class BearerTokenMiddleware implements NestMiddleware {
 
     const refreshType = 'refresh';
     const accessType = 'access';
-    
+
     try {
       const token = this.validateBearerToken(authHeader);
       const decodedPayload = this.jwtService.decode(token);
@@ -29,7 +29,6 @@ export class BearerTokenMiddleware implements NestMiddleware {
       if (decodedPayload.type !== refreshType && decodedPayload.type !== accessType) {
         throw new UnauthorizedException('잘못된 토큰입니다!');
       }
-
 
       const secretKey = decodedPayload.type === refreshType ?
         envVariablesKeys.refreshTokenSecret :
@@ -42,6 +41,9 @@ export class BearerTokenMiddleware implements NestMiddleware {
       req.user = payload;
       next();
     } catch (e) {
+      if (e.name === 'TokenExpiredError') {
+        throw new UnauthorizedException('토큰이 만료됐습니다');
+      }
       next();
     }
   }
