@@ -14,6 +14,8 @@ import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
 import { envVariablesKeys } from './common/const/env.const';
 import { BearerTokenMiddleware } from './auth/middleware/beare-token.middleware';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/guard/auth.guard';
 
 @Module({
   imports: [
@@ -49,19 +51,21 @@ import { BearerTokenMiddleware } from './auth/middleware/beare-token.middleware'
         ],
         synchronize: true,
       }),
-
       inject: [ConfigService]
     }),
 
     MovieModule,
-
     DirectorModule,
-
     GenreModule,
-
     AuthModule,
-
     UserModule
+  ],
+
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    }
   ],
 })
 

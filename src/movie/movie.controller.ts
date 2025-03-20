@@ -1,7 +1,7 @@
-import { Controller, Request, Get, Post, Body, Patch, Param, Delete, Query, UseInterceptors, ClassSerializerInterceptor, ParseIntPipe, BadRequestException, DefaultValuePipe, NotFoundException } from '@nestjs/common';
-import { MovieService } from './movie.service';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie-dto';
 import { UpdateMovieDto } from './dto/update-movie-dto';
+import { MovieService } from './movie.service';
 import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
 
 @Controller('movie')
@@ -11,11 +11,8 @@ export class MovieController {
   // 읽기: 전체 가져오기
   @Get()
   findAll(
-    @Request() request: any,
     @Query('title', MovieTitleValidationPipe) title?: string,
   ) {
-    console.log(request.user);
-    /// title 쿼리의 타입이 string 타입인지?
     return this.movieService.findAll(title);
   }
 
