@@ -1,6 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as schema from 'joi';
 import { AuthModule } from './auth/auth.module';
@@ -8,6 +8,8 @@ import { AuthGuard } from './auth/guard/auth.guard';
 import { RBACGuard } from './auth/guard/rbac.guard';
 import { BearerTokenMiddleware } from './auth/middleware/beare-token.middleware';
 import { envVariablesKeys } from './common/const/env.const';
+import { QueryFailedExceptionsFilter } from './common/filter/exception.filter';
+import { ForbiddenExceptionsFilter } from './common/filter/forbidden.filter';
 import { ResponseTimeInterceptor } from './common/interceptor/response-time.interceptor';
 import { DirectorModule } from './director/director.module';
 import { Director } from './director/entitiy/director.entity';
@@ -71,9 +73,18 @@ import { UserModule } from './user/user.module';
     {
       provide: APP_GUARD,
       useClass: RBACGuard,
-    }, {
+    },
+    {
       provide: APP_INTERCEPTOR,
       useClass: ResponseTimeInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ForbiddenExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: QueryFailedExceptionsFilter,
     },
   ],
 })
