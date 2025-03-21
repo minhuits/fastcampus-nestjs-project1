@@ -1,9 +1,12 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Request, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
+import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
+import { UserId } from 'src/user/decorator/user-id.decorator';
 import { Role } from 'src/user/entities/user.entity';
+import { QueryRunner as QR } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie-dto';
 import { GetMoviesDto } from './dto/get-moives.dto';
 import { UpdateMovieDto } from './dto/update-movie-dto';
@@ -38,11 +41,13 @@ export class MovieController {
   @UseInterceptors(TransactionInterceptor)
   create(
     @Body() body: CreateMovieDto,
-    @Request() request,
+    @QueryRunner() queryRunner: QR,
+    @UserId() userId: number,
   ) {
     return this.movieService.create(
       body,
-      request.queryRunner,
+      userId,
+      queryRunner,
     );
   }
 

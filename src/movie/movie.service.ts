@@ -51,6 +51,7 @@ export class MovieService {
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres')
       .leftJoinAndSelect('movie.detail', 'detail')
+      .leftJoinAndSelect('movie.creator', 'creator')
       .where('movie.id = :id', { id })
       .getOne();
 
@@ -61,7 +62,7 @@ export class MovieService {
     return movie;
   }
 
-  async create(createMovieDto: CreateMovieDto, queryRunner: QueryRunner) {
+  async create(createMovieDto: CreateMovieDto, userId: number, queryRunner: QueryRunner) {
     const director = await queryRunner.manager.findOne(Director, {
       where: {
         id: createMovieDto.directorId,
@@ -93,11 +94,6 @@ export class MovieService {
     const movieFolder = join('public', 'movie');
     const tempFolder = join('public', 'temp');
 
-    await rename(
-      join(process.cwd(), tempFolder, createMovieDto.movieFileName),
-      join(process.cwd(), movieFolder, createMovieDto.movieFileName),
-    );
-
     const movie = await queryRunner.manager.createQueryBuilder()
       .insert()
       .into(Movie)
@@ -107,6 +103,9 @@ export class MovieService {
           detail: movieDetailId,
         },
         director,
+        creator: {
+          id: movieDetailId,
+        },
         movieFilePath: join(movieFolder, createMovieDto.movieFileName),
       })
       .execute();
@@ -117,6 +116,11 @@ export class MovieService {
       .relation(Movie, 'genres')
       .of(movieId)
       .add(genres.map(genre => genre.id));
+
+    await rename(
+      join(process.cwd(), tempFolder, createMovieDto.movieFileName),
+      join(process.cwd(), movieFolder, createMovieDto.movieFileName),
+    );
 
     return await queryRunner.manager.findOne(Movie, {
       where: {
