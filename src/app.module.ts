@@ -1,6 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as schema from 'joi';
 import { AuthModule } from './auth/auth.module';
@@ -20,6 +21,7 @@ import { Movie } from './movie/entity/movie.entity';
 import { MovieModule } from './movie/movie.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -57,7 +59,10 @@ import { UserModule } from './user/user.module';
       }),
       inject: [ConfigService]
     }),
-
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'public'),
+      serveRoot: '/public/',
+    }),
     MovieModule,
     DirectorModule,
     GenreModule,
