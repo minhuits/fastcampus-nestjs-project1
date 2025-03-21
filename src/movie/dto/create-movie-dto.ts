@@ -4,7 +4,7 @@ export class CreateMovieDto {
   @IsNotEmpty()
   @IsString()
   title: string;
-  
+
   @IsNotEmpty()
   @IsString()
   detail: string;

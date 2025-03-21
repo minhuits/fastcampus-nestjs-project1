@@ -29,17 +29,20 @@ export class MovieService {
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres');
 
+
     if (title) {
       queryBuilder.where('movie.title LIKE :title', { title: `%${title}%` });
     }
 
-    // if (take && page) {
-    //   this.commonService.applyPagination(queryBuilder, dto);
-    // }
+    const { nextCursor } = await this.commonService.applyCursorPagination(queryBuilder, dto);
 
-    this.commonService.applyCursorPagination(queryBuilder, dto);
+    const [data, count] = await queryBuilder.getManyAndCount();
 
-    return await queryBuilder.getManyAndCount();
+    return {
+      data,
+      nextCursor,
+      count,
+    }
   }
 
   async findOne(id: number) {

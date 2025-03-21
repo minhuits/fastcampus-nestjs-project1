@@ -1,5 +1,5 @@
 import { IsOptional, IsString } from "class-validator";
-import { CursorPaginationDto } from "src/common/dto/cursor-pagination.dto copy";
+import { CursorPaginationDto } from "src/common/dto/cursor-pagination.dto";
 
 // export class GetMoviesDto extends PagePaginationDto {
 export class GetMoviesDto extends CursorPaginationDto {
