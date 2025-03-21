@@ -153,3 +153,41 @@ SELECT
 FROM
    movie m
    Join director d on m.director_id = d.id;
+
+-- Coursor Based Pagination
+UPDATE movie
+SET "likeCount" = 10
+where id < 20;
+
+UPDATE movie
+SET "likeCount" = 20
+where id > 20 AND id < 40;
+
+SELECT id, title, "likeCount" FROM moive
+WHERE id < 252
+ORDER BY id DESC
+LIMIT 5;
+
+SELECT id, title, "likeCount" FROM moive
+ORDER BY "likeCount" DESC, id DESC
+LIMIT 5 
+OFFSET 5;
+
+-- 2개
+SELECT id, title, "likeCount" FROM moive
+WHERE ("likeCount" < 20) OR ("likeCount" = 20 AND id < 35)
+ORDER BY "likeCount" DESC, id DESC
+LIMIT 5;
+
+-- 3개
+SELECT id, title, "likeCount", "createdAt" FROM moive
+WHERE ("likeCount" < 20) 
+OR ("likeCount" = 20 AND id < 35) 
+OR ("likeCount" = 20 AND id = 35 AND "createdAt" < "2025-03-21 11:50:30.114837") 
+ORDER BY "likeCount" DESC, id DESC, "createdAt" DESC
+LIMIT 5;
+
+SELECT id, title, "likeCount", "createdAt" FROM moive
+WHERE (id, title, "likeCount", "createdAt") < (20, 35, "2025-03-21 11:50:30.114837") 
+ORDER BY "likeCount" DESC, id DESC, "createdAt" DESC
+LIMIT 5;

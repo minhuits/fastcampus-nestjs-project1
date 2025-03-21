@@ -3,9 +3,9 @@ import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { Role } from 'src/user/entities/user.entity';
 import { CreateMovieDto } from './dto/create-movie-dto';
+import { GetMoviesDto } from './dto/get-moives.dto';
 import { UpdateMovieDto } from './dto/update-movie-dto';
 import { MovieService } from './movie.service';
-import { MovieTitleValidationPipe } from './pipe/movie-title-validation.pipe';
 
 @Controller('movie')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -15,11 +15,11 @@ export class MovieController {
   @Get()
   @Public()
   findAll(
-    @Query('title', MovieTitleValidationPipe) title?: string,
+    @Query() dto: GetMoviesDto,
   ) {
-    return this.movieService.findAll(title);
+    return this.movieService.findAll(dto);
   }
-  
+
   // 읽기: 1개씩 가져오기
   @Get(':id')
   @Public()
@@ -37,7 +37,7 @@ export class MovieController {
   ) {
     return this.movieService.create(body);
   }
-  
+
   // 수정
   @Patch(':id')
   @RBAC(Role.admin)
@@ -47,7 +47,7 @@ export class MovieController {
   ) {
     return this.movieService.update(+id, body);
   }
-  
+
   // 삭제
   @Delete(':id')
   @RBAC(Role.admin)

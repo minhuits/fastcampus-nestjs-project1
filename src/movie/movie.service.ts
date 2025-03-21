@@ -1,37 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateMovieDto } from './dto/create-movie-dto';
-import { UpdateMovieDto } from './dto/update-movie-dto';
-import { Movie } from './entity/movie.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
-import { MovieDetail } from './entity/movie-detail.entity';
+import { CommonService } from 'src/common/common.service';
 import { Director } from 'src/director/entitiy/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
+import { DataSource, In, Repository } from 'typeorm';
+import { CreateMovieDto } from './dto/create-movie-dto';
+import { GetMoviesDto } from './dto/get-moives.dto';
+import { UpdateMovieDto } from './dto/update-movie-dto';
+import { MovieDetail } from './entity/movie-detail.entity';
+import { Movie } from './entity/movie.entity';
 
 @Injectable()
 export class MovieService {
   constructor(
     @InjectRepository(Movie)
     private readonly moiveRepository: Repository<Movie>,
-    @InjectRepository(Movie)
-    private readonly genreRepository: Repository<Genre>,
     @InjectRepository(MovieDetail)
     private readonly moiveDetailRepository: Repository<MovieDetail>,
-    @InjectRepository(MovieDetail)
-    private readonly directorRepository: Repository<Director>,
     private readonly dataSource: DataSource,
+    private readonly commonService: CommonService,
   ) { }
 
-  async findAll(title?: string) {
-    const movie = await this.moiveRepository.createQueryBuilder('movie')
+  async findAll(dto: GetMoviesDto) {
+    // const { title, take, page } = dto;
+    const { title } = dto;
+
+    const queryBuilder = await this.moiveRepository.createQueryBuilder('movie')
       .leftJoinAndSelect('movie.director', 'director')
       .leftJoinAndSelect('movie.genres', 'genres');
 
-    if (title) {//title 필터 기능 추가하기
-      movie.where('movie.title LIKE :title', { title: `%${title}%` });
+    if (title) {
+      queryBuilder.where('movie.title LIKE :title', { title: `%${title}%` });
     }
 
-    return await movie.getManyAndCount();
+    // if (take && page) {
+    //   this.commonService.applyPagination(queryBuilder, dto);
+    // }
+
+    this.commonService.applyCursorPagination(queryBuilder, dto);
+
+    return await queryBuilder.getManyAndCount();
   }
 
   async findOne(id: number) {
