@@ -1,6 +1,8 @@
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Request, UseInterceptors } from '@nestjs/common';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
+import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
+import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { Role } from 'src/user/entities/user.entity';
 import { CreateMovieDto } from './dto/create-movie-dto';
 import { GetMoviesDto } from './dto/get-moives.dto';
@@ -14,6 +16,7 @@ export class MovieController {
   // 읽기: 전체 가져오기
   @Get()
   @Public()
+  @UseInterceptors(CacheInterceptor)
   findAll(
     @Query() dto: GetMoviesDto,
   ) {
@@ -32,10 +35,15 @@ export class MovieController {
   // 생성
   @Post()
   @RBAC(Role.admin)
+  @UseInterceptors(TransactionInterceptor)
   create(
-    @Body() body: CreateMovieDto
+    @Body() body: CreateMovieDto,
+    @Request() request,
   ) {
-    return this.movieService.create(body);
+    return this.movieService.create(
+      body,
+      request.queryRunner
+    );
   }
 
   // 수정
