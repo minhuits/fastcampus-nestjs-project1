@@ -1,5 +1,5 @@
 import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors, Version, VERSION_NEUTRAL } from '@nestjs/common';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
@@ -14,7 +14,23 @@ import { GetMoviesDto } from './dto/get-moives.dto';
 import { UpdateMovieDto } from './dto/update-movie-dto';
 import { MovieService } from './movie.service';
 
-@Controller('movie')
+@Controller({
+  path: 'movie',
+  version: '2'
+})
+export class MovieControllerV2 {
+  @Get()
+  findAll() {
+    return [];
+  }
+}
+
+@Controller({
+  path: 'movie',
+  // version: ['1', '3'],
+  // version: '1',
+  version: VERSION_NEUTRAL,
+})
 @UseInterceptors(ClassSerializerInterceptor)
 export class MovieController {
   constructor(private readonly movieService: MovieService) { }

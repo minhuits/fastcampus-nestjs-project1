@@ -135,8 +135,16 @@ export class AppModule implements NestModule {
     consumer.apply(
       BearerTokenMiddleware,
     ).exclude(
-      { path: 'auth/login', method: RequestMethod.POST },
-      { path: 'auth/register', method: RequestMethod.POST },
+      { 
+        path: 'auth/login', 
+        method: RequestMethod.POST, 
+        // version: ['1', '2'] 
+      },
+      { 
+        path: 'auth/register', 
+        method: RequestMethod.POST, 
+        // version: ['1', '2'] 
+      },
     ).forRoutes('*');
   }
 }
