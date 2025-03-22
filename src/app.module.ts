@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -11,8 +12,8 @@ import { RBACGuard } from './auth/guard/rbac.guard';
 import { BearerTokenMiddleware } from './auth/middleware/beare-token.middleware';
 import { envVariablesKeys } from './common/const/env.const';
 import { QueryFailedExceptionsFilter } from './common/filter/exception.filter';
-import { ForbiddenExceptionsFilter } from './common/filter/forbidden.filter';
 import { ResponseTimeInterceptor } from './common/interceptor/response-time.interceptor';
+import { ThrottleInterceptor } from './common/interceptor/throttle.interceptor';
 import { DirectorModule } from './director/director.module';
 import { Director } from './director/entitiy/director.entity';
 import { Genre } from './genre/entities/genre.entity';
@@ -65,6 +66,10 @@ import { UserModule } from './user/user.module';
       rootPath: join(process.cwd(), 'public'),
       serveRoot: '/public/',
     }),
+    CacheModule.register({
+      ttl: 0,
+      isGlobal: true,
+    }),
     MovieModule,
     DirectorModule,
     GenreModule,
@@ -86,8 +91,8 @@ import { UserModule } from './user/user.module';
       useClass: ResponseTimeInterceptor,
     },
     {
-      provide: APP_FILTER,
-      useClass: ForbiddenExceptionsFilter,
+      provide: APP_INTERCEPTOR,
+      useClass: ThrottleInterceptor,
     },
     {
       provide: APP_FILTER,

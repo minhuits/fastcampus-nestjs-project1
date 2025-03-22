@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { rename } from 'fs/promises';
 import { join } from 'path';
@@ -27,6 +28,8 @@ export class MovieService {
     private readonly moiveDetailRepository: Repository<MovieDetail>,
     private readonly dataSource: DataSource,
     private readonly commonService: CommonService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) { }
 
   async findAll(dto: GetMoviesDto, userId?: number) {
@@ -71,6 +74,29 @@ export class MovieService {
       nextCursor,
       count,
     }
+  }
+
+  async findRecent() {
+    // await this.cacheManager.set('number', 10); // 데이터 저장
+    // const data = this.cacheManager.get('number'); // 데이터 가져오기
+    // console.log(data);
+    
+    const cacheData = await this.cacheManager.get('MOVIE_RECENT');
+
+    if (cacheData) {
+      return cacheData;
+    }
+
+    const data = this.moiveRepository.find({
+      order: {
+        createdAt: 'DESC'
+      },
+      take: 10,
+    });
+
+    await this.cacheManager.set('MOVIE_RECENT', data);
+
+    return data;
   }
 
   async findOne(id: number) {

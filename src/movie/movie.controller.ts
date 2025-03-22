@@ -1,7 +1,9 @@
+import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
+import { Thrttle } from 'src/common/decorator/thrttle.decorator';
 import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { UserId } from 'src/user/decorator/user-id.decorator';
@@ -19,12 +21,24 @@ export class MovieController {
   // 읽기: 전체 가져오기
   @Get()
   @Public()
+  @Thrttle({
+    count: 5,
+    unit: 'minute',
+  })
   @UseInterceptors(CacheInterceptor)
   findAll(
     @Query() dto: GetMoviesDto,
     @UserId() userId?: number,
   ) {
     return this.movieService.findAll(dto, userId);
+  }
+
+  @Get('recent')
+  @UseInterceptors(CI)
+  @CacheKey('getMovieRecent')
+  @CacheTTL(3000)
+  getMovieRecent() {
+    return this.movieService.findRecent();
   }
 
   // 읽기: 1개씩 가져오기

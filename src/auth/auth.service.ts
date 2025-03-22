@@ -1,4 +1,5 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,6 +15,8 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) { }
 
 
@@ -85,6 +88,22 @@ export class AuthService {
     } catch (e) {
       throw new UnauthorizedException('토큰이 만료됐습니다!');
     }
+  }
+
+
+  async tokenBlock(token: string) {
+    const payload = this.jwtService.decode(token);
+    const expriryDate = +new Date(payload['exp'] * 1000);
+    const now = +Date.now();
+    const differenceInSeconds = (expriryDate - now) / 1000;
+
+    await this.cacheManager.set(
+      `BLOCK_TOKEN_${token}`,
+      payload,
+      Math.max(differenceInSeconds * 1000, 1),
+    );
+
+    return true;
   }
 
   /// rowToken -> "Basic $token"

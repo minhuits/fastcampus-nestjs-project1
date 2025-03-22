@@ -1,8 +1,8 @@
-import { Controller, Get, Headers, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Public } from './decorator/public.decorator';
 import { JwtAuthGuard } from './strategy/jwt.strategy';
 import { LocalAuthGuard } from './strategy/local.strategy';
-import { Public } from './decorator/public.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +13,7 @@ export class AuthController {
   registerUser(@Headers('authorization') token: string) {
     return this.authService.register(token);
   }
-  
+
   @Public()
   @Post('login')
   loginUser(@Headers('authorization') token: string) {
@@ -27,6 +27,13 @@ export class AuthController {
     return {
       accessToken: await this.authService.issueToken(payload, false),
     }
+  }
+
+  @Post('token/block')
+  blockToken(
+    @Body('token') token: string,
+  ) {
+    return this.authService.tokenBlock(token);
   }
 
   @UseGuards(LocalAuthGuard)
