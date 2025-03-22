@@ -22,8 +22,9 @@ export class MovieController {
   @UseInterceptors(CacheInterceptor)
   findAll(
     @Query() dto: GetMoviesDto,
+    @UserId() userId?: number,
   ) {
-    return this.movieService.findAll(dto);
+    return this.movieService.findAll(dto, userId);
   }
 
   // 읽기: 1개씩 가져오기
@@ -66,5 +67,21 @@ export class MovieController {
   @RBAC(Role.admin)
   remove(@Param('id', ParseIntPipe) id: string) {
     return this.movieService.remove(+id);
+  }
+
+  @Post(':id/like')
+  creatMovieLike(
+    @Param('id', ParseIntPipe) movieId: number,
+    @UserId() userId: number,
+  ) {
+    return this.movieService.toggleMovieLike(movieId, userId, true);
+  }
+
+  @Post(':id/dislike')
+  creatMovieDislike(
+    @Param('id', ParseIntPipe) movieId: number,
+    @UserId() userId: number,
+  ) {
+    return this.movieService.toggleMovieLike(movieId, userId, false);
   }
 }
