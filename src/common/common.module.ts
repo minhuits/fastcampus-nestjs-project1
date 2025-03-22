@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { diskStorage } from 'multer';
 import { join } from 'path';
+import { Movie } from 'src/movie/entity/movie.entity';
 import { v4 } from 'uuid';
 import { CommonController } from './common.controller';
 import { CommonService } from './common.service';
+import { TaskService } from './task.service';
 
 @Module({
   imports: [
@@ -25,10 +28,12 @@ import { CommonService } from './common.service';
         } // 파일 이름 변경하기
       }),
     }),
-
+    TypeOrmModule.forFeature([
+      Movie,
+    ])
   ],
   controllers: [CommonController],
-  providers: [CommonService],
+  providers: [CommonService, TaskService],
   exports: [CommonService],
 })
 export class CommonModule { };
