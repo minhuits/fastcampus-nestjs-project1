@@ -6,7 +6,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as schema from 'joi';
+import { WinstonModule } from 'nest-winston';
 import { join } from 'path';
+import * as winston from 'winston';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/guard/auth.guard';
 import { RBACGuard } from './auth/guard/rbac.guard';
@@ -72,6 +74,31 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
     }),
     ScheduleModule.forRoot(),
+    WinstonModule.forRoot({
+      level: 'debug',
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.colorize({
+              all: true,
+            }),
+            winston.format.timestamp(),
+            winston.format.printf(info => `${info.timestamp} ${info.context} ${info.level} ${info.message}`),
+          ),
+        }),
+        new winston.transports.File({
+          dirname: join(process.cwd(), 'logs'),
+          filename: 'logs.log',
+          format: winston.format.combine(
+            winston.format.colorize({
+              all: true,
+            }),
+            winston.format.timestamp(),
+            winston.format.printf(info => `${info.timestamp} ${info.context} ${info.level} ${info.message}`),
+          ),
+        })
+      ]
+    }),
     MovieModule,
     DirectorModule,
     GenreModule,

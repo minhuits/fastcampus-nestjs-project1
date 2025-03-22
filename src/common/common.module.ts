@@ -7,6 +7,7 @@ import { Movie } from 'src/movie/entity/movie.entity';
 import { v4 } from 'uuid';
 import { CommonController } from './common.controller';
 import { CommonService } from './common.service';
+import { DefaultLogger } from './loggler/default.logger';
 import { TaskService } from './task.service';
 
 @Module({
@@ -33,7 +34,7 @@ import { TaskService } from './task.service';
     ])
   ],
   controllers: [CommonController],
-  providers: [CommonService, TaskService],
-  exports: [CommonService],
+  providers: [CommonService, TaskService, DefaultLogger],
+  exports: [CommonService, DefaultLogger],
 })
 export class CommonModule { };

@@ -1,25 +1,35 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, LoggerService } from "@nestjs/common";
 import { Cron, SchedulerRegistry } from "@nestjs/schedule";
 import { InjectRepository } from "@nestjs/typeorm";
 import { readdir, unlink } from "fs/promises";
+import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 import { join, parse } from "path";
 import { Movie } from "src/movie/entity/movie.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
 export class TaskService {
+  // private readonly logger = new Logger(TaskService.name);
+
   constructor(
     @InjectRepository(Movie)
     private readonly movieRepository: Repository<Movie>,
-
     private readonly schedulerRegistry: SchedulerRegistry,
+    // private readonly logger: DefaultLogger,
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
   ) { }
 
   // 1. Cron 사용해보기
   // 
-  // @Cron('* * * * * *')
+  @Cron('*/5 * * * * *')
   logEverySecond() {
-    console.log('1초마다 실행!');
+    // this.logger.fatal('fatal 레벨'.toUpperCase(), null, TaskService.name);
+    this.logger.error('error 레벨'.toUpperCase(), null, TaskService.name);
+    this.logger.warn('warn 레벨'.toUpperCase(), TaskService.name);
+    this.logger.log('log 레벨'.toUpperCase(), TaskService.name);
+    // this.logger.debug('debug 레벨'.toUpperCase());
+    // this.logger.verbose('verbose 레벨'.toUpperCase());
   }
 
   // 2. 임시 파일 삭제 기능 (기준: 생성 시간)
@@ -86,14 +96,14 @@ export class TaskService {
   }
 
   // 4. 다이나믹 태스크 스케줄링
-  @Cron('* * * * * *', {
-    name: 'printer',
-  })
+  // @Cron('* * * * * *', {
+  //   name: 'printer',
+  // })
   printer() {
     console.log('[printer] print every seconds!');
   }
 
-  @Cron('*/5 * * * * *')
+  // @Cron('*/5 * * * * *')
   stepper() {
     console.log('[stepper] ==== stepper run! ====');
 
