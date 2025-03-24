@@ -3,7 +3,7 @@ import { ApiBasicAuth, ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { Authorization } from './decorator/authorization.decorator';
 import { Public } from './decorator/public.decorator';
-import { JwtAuthGuard } from './strategy/jwt.strategy';
+// import { JwtAuthGuard } from './strategy/jwt.strategy';
 import { LocalAuthGuard } from './strategy/local.strategy';
 
 @Controller('auth')
@@ -27,11 +27,9 @@ export class AuthController {
   }
 
   @Post('token/access')
-  async rotateAccessToken(@Request() request) {
-    const payload = await this.authService.parseBearerToken(request.user, true);
-
+  async rotateAccessToken(@Request() request){
     return {
-      accessToken: await this.authService.issueToken(payload, false),
+      accessToken: await this.authService.issueToken(request.user, false),
     }
   }
 
@@ -51,9 +49,9 @@ export class AuthController {
     };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('private')
-  async private(@Request() requset) {
-    return requset.user;
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @Get('private')
+  // async private(@Request() requset) {
+  //   return requset.user;
+  // }
 }

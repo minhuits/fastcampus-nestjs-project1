@@ -21,11 +21,10 @@ export class AuthService {
     private readonly cacheManager: Cache,
   ) { }
 
-
-  parseBasicToken(rowToken: string) {
+  parseBasicToken(rawToken: string) {
     /// 1) 토큰을 ' ' 기준으로 스플릿 한 후 토큰 값만 추출하기
     /// ['Basic', $token]
-    const basicSplit = rowToken.split(' ');
+    const basicSplit = rawToken.split(' ');
 
     if (basicSplit.length !== 2) {
       throw new BadRequestException('토큰 포맷이 잘못됐습니다!');
@@ -44,8 +43,8 @@ export class AuthService {
     /// [email, password]
     const tokenSplit = decoded.split(':');
 
-    if (basicSplit.length !== 2) {
-      throw new BadRequestException('토큰 포맷이 잘못됐습니다!');
+    if (tokenSplit.length !== 2) {
+      throw new BadRequestException('토큰 포맷이 잘못됐습니다!')
     }
 
     const [email, password] = tokenSplit;
@@ -138,15 +137,11 @@ export class AuthService {
     return user;
   }
 
-  async issueToken(user: { id: number, role: Role }, isRefreshToken: boolean) {
+  async issueToken(user: { id: any, role: Role }, isRefreshToken: boolean): Promise<string> {
     const refreshSecret = this.configService.get<string>(envVariablesKeys.refreshTokenSecret);
     const accessSecret = this.configService.get<string>(envVariablesKeys.accessTokenSecret);
 
-    if (refreshSecret === undefined || accessSecret === undefined) {
-      throw new BadRequestException('REFRESH_TOKEN_SECRET 또는 ACCESS_TOKEN_SECRET이 알 수 없는 값(Undefined)입니다!');
-    }
-
-    await this.jwtService.signAsync({
+    return this.jwtService.signAsync({
       sub: user.id,
       role: user.role,
       type: isRefreshToken ? 'refresh' : 'access',
@@ -158,12 +153,12 @@ export class AuthService {
 
   async login(rowToken: string) {
     const { email, password } = this.parseBasicToken(rowToken);
+
     const user = await this.authenticate(email, password);
 
     return {
       refreshToken: await this.issueToken(user, true),
       accessToken: await this.issueToken(user, false),
     }
-
   }
 }
