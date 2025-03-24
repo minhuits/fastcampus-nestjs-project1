@@ -1,18 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, ClassSerializerInterceptor, ParseIntPipe } from '@nestjs/common';
-import { GenreService } from './genre.service';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
+import { GenreService } from './genre.service';
 
 @Controller('genre')
+@ApiBearerAuth()
+@ApiTags('genre')
 @UseInterceptors(ClassSerializerInterceptor)
 export class GenreController {
-  constructor(private readonly genreService: GenreService) {}
-  
+  constructor(private readonly genreService: GenreService) { }
+
   @Get()
   findAll() {
     return this.genreService.findAll();
   }
-  
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: string) {
     return this.genreService.findOne(+id);

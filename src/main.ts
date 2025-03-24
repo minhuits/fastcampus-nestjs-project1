@@ -1,5 +1,6 @@
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
 
@@ -7,19 +8,22 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: ['verbose'],
   });
-  app.enableVersioning({
-    // 1. URI versioning
-    // type: VersioningType.URI,
-    // defaultVersion: ['1', '2'],
- 
-    // 2. Header versioning
-    // type: VersioningType.HEADER,
-    // header: 'version',
 
-    // 3. Media Type versioning
-    type: VersioningType.MEDIA_TYPE,
-    key: 'v=',
+  const config = new DocumentBuilder()
+    .setTitle('넷플릭스 API')
+    .setDescription('코드팩토리 넷플릭스 API 문서')
+    .setVersion('1.0')
+    .addBasicAuth()
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('doc', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
   });
+
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,

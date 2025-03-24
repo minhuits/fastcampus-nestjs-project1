@@ -1,5 +1,6 @@
 import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors, Version, VERSION_NEUTRAL } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
@@ -14,23 +15,9 @@ import { GetMoviesDto } from './dto/get-moives.dto';
 import { UpdateMovieDto } from './dto/update-movie-dto';
 import { MovieService } from './movie.service';
 
-@Controller({
-  path: 'movie',
-  version: '2'
-})
-export class MovieControllerV2 {
-  @Get()
-  findAll() {
-    return [];
-  }
-}
-
-@Controller({
-  path: 'movie',
-  // version: ['1', '3'],
-  // version: '1',
-  version: VERSION_NEUTRAL,
-})
+@Controller('movie')
+@ApiBearerAuth()
+@ApiTags('movie')
 @UseInterceptors(ClassSerializerInterceptor)
 export class MovieController {
   constructor(private readonly movieService: MovieService) { }
@@ -40,6 +27,17 @@ export class MovieController {
   @Thrttle({
     count: 5,
     unit: 'minute',
+  })
+  @ApiOperation({
+    description: '[Movie]를 Pagenation을 하는 API',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '성공적으로 API Pagenation을 실행 했을 때',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Pagenation 데이터를 잘못 입력 했을 때',
   })
   @UseInterceptors(CacheInterceptor)
   findAll(
