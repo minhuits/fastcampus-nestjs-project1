@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { envVariablesKeys } from 'src/common/const/env.const';
 import { Role, User } from 'src/user/entities/user.entity';
+import { UserService } from 'src/user/user.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER)
@@ -110,30 +112,9 @@ export class AuthService {
   async register(rowToken: string) {
     const { email, password } = this.parseBasicToken(rowToken);
 
-    const user = await this.userRepository.findOne({
-      where: {
-        email,
-      }
-    });
-
-    if (user) {
-      throw new BadRequestException('이미 가입한 이메일 입니다!');
-    }
-
-    const hashRounds = this.configService.get<number>(envVariablesKeys.hashRounds);
-    if (hashRounds === undefined) {
-      throw new BadRequestException('HASH_ROUNDS가 알 수 없는 값(Undefined)입니다!');
-    }
-    const hash = await bcrypt.hash(password, hashRounds);
-
-    await this.userRepository.save({
-      email, hashcode: hash,
-    });
-
-    return this.userRepository.findOne({
-      where: {
-        email,
-      }
+    return this.userService.create({
+      email,
+      password,
     });
   }
 
