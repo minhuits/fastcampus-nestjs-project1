@@ -84,17 +84,17 @@ export class MovieController {
   @Patch(':id')
   @RBAC(Role.admin)
   update(
-    @Param('id', ParseIntPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: UpdateMovieDto,
   ) {
-    return this.movieService.update(+id, body);
+    return this.movieService.update(id, body);
   }
 
   // 삭제
   @Delete(':id')
   @RBAC(Role.admin)
-  remove(@Param('id', ParseIntPipe) id: string) {
-    return this.movieService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.movieService.remove(id);
   }
 
   @Post(':id/like')
