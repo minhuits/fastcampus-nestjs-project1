@@ -19,13 +19,13 @@ import { ResponseTimeInterceptor } from './common/interceptor/response-time.inte
 import { ThrottleInterceptor } from './common/interceptor/throttle.interceptor';
 import { DirectorModule } from './director/director.module';
 import { Director } from './director/entitiy/director.entity';
-import { Genre } from './genre/entities/genre.entity';
+import { Genre } from './genre/entity/genre.entity';
 import { GenreModule } from './genre/genre.module';
 import { MovieDetail } from './movie/entity/movie-detail.entity';
 import { MovieUserLike } from './movie/entity/movie-user-like.entity';
 import { Movie } from './movie/entity/movie.entity';
 import { MovieModule } from './movie/movie.module';
-import { User } from './user/entities/user.entity';
+import { User } from './user/entity/user.entity';
 import { UserModule } from './user/user.module';
 import { ChatModule } from './chat/chat.module';
 

@@ -6,7 +6,7 @@ import { envVariablesKeys } from 'src/common/const/env.const';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { User } from './entity/user.entity';
 
 @Injectable()
 export class UserService {

@@ -4,8 +4,8 @@ import { BadRequestException, NotFoundException, UnauthorizedException } from '@
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CommonService } from 'src/common/common.service';
 import { Director } from 'src/director/entitiy/director.entity';
-import { Genre } from 'src/genre/entities/genre.entity';
-import { User } from 'src/user/entities/user.entity';
+import { Genre } from 'src/genre/entity/genre.entity';
+import { User } from 'src/user/entity/user.entity';
 import { DataSource, In, QueryRunner, Repository } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie-dto';
 import { GetMoviesDto } from './dto/get-moives.dto';

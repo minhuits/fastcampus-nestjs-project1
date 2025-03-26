@@ -8,7 +8,7 @@ import { Thrttle } from 'src/common/decorator/thrttle.decorator';
 import { CacheInterceptor } from 'src/common/interceptor/cache.interceptor';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { UserId } from 'src/user/decorator/user-id.decorator';
-import { Role } from 'src/user/entities/user.entity';
+import { Role } from 'src/user/entity/user.entity';
 import { QueryRunner as QR } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie-dto';
 import { GetMoviesDto } from './dto/get-moives.dto';

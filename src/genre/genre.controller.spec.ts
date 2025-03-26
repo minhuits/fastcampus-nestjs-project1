@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateGenreDto } from './dto/create-genre.dto';
-import { Genre } from './entities/genre.entity';
+import { Genre } from './entity/genre.entity';
 import { GenreController } from './genre.controller';
 import { GenreService } from './genre.service';
 
