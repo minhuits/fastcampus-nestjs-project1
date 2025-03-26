@@ -167,3 +167,5 @@ SET "likeCount" = (
       WHERE m.id = mul."movieId"
          AND mul."isLike" = true
    );
+
+create database test;

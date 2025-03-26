@@ -32,8 +32,9 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'test' ? 'test.env' : '.env', 
       validationSchema: schema.object({
-        ENV: schema.string().valid('dev', 'prod').required(),
+        ENV: schema.string().valid('test','dev', 'prod').required(),
         DB_TYPE: schema.string().valid('postgres').required(),
         DB_HOST: schema.string().required(),
         DB_PORT: schema.number().required(),
