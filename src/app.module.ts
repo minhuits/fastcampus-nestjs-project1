@@ -27,6 +27,7 @@ import { Movie } from './movie/entity/movie.entity';
 import { MovieModule } from './movie/movie.module';
 import { User } from './user/entities/user.entity';
 import { UserModule } from './user/user.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -113,7 +114,8 @@ import { UserModule } from './user/user.module';
     DirectorModule,
     GenreModule,
     AuthModule,
-    UserModule
+    UserModule,
+    ChatModule
   ],
 
   providers: [
