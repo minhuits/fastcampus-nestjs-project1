@@ -8,6 +8,7 @@ export class Chat extends BaseTable {
   @PrimaryGeneratedColumn()
   id: number;
 
+
   @ManyToOne(
     () => User,
     (user) => user.chats

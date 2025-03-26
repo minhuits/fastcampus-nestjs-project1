@@ -9,15 +9,15 @@ export class ChatRoom extends BaseTable {
   id: number;
 
   @ManyToOne(
-    () => User,
-    (user) => user.chatRooms
+      () => User,
+      (user) => user.chatRooms
   )
   @JoinTable()
   users: User[];
 
   @OneToMany(
-    () => Chat,
-    (chat) => chat.chatRoom,
+      ()=> Chat,
+      (chat) => chat.chatRoom,
   )
   chats: Chat[];
 }
