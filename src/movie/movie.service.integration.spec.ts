@@ -1,5 +1,6 @@
 import { Cache, CACHE_MANAGER, CacheModule } from "@nestjs/cache-manager"
 import { NotFoundException } from "@nestjs/common"
+import { ConfigModule } from "@nestjs/config"
 import { Test, TestingModule } from "@nestjs/testing"
 import { TypeOrmModule } from "@nestjs/typeorm"
 import { CommonService } from "src/common/common.service"
@@ -53,6 +54,7 @@ describe('MovieService - Integration Test', () => {
             MovieUserLike,
           ]
         ),
+        ConfigModule.forRoot(),
       ],
       providers: [MovieService, CommonService]
     }).compile();

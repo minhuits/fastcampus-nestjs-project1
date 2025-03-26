@@ -32,9 +32,9 @@ import { UserModule } from './user/user.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'test' ? 'test.env' : '.env', 
+      envFilePath: process.env.NODE_ENV === 'test' ? 'test.env' : '.env',
       validationSchema: schema.object({
-        ENV: schema.string().valid('test','dev', 'prod').required(),
+        ENV: schema.string().valid('test', 'dev', 'prod').required(),
         DB_TYPE: schema.string().valid('postgres').required(),
         DB_HOST: schema.string().required(),
         DB_PORT: schema.number().required(),
@@ -44,6 +44,10 @@ import { UserModule } from './user/user.module';
         HASH_ROUNDS: schema.number().required(),
         ACCESS_TOKEN_SECRET: schema.string().required(),
         REFRESH_TOKEN_SECRET: schema.string().required(),
+        AWS_SECRET_ACCESS_KEY: schema.string().required(),
+        AWS_ACCESS_KEY_ID: schema.string().required(),
+        AWS_REGION: schema.string().required(),
+        BUCKET_NAME: schema.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -62,7 +66,12 @@ import { UserModule } from './user/user.module';
           Genre,
           User,
         ],
-        synchronize: true,
+        synchronize: configService.get<string>(envVariablesKeys.env) === 'prod' ? false : true,
+        ...(configService.get<string>(envVariablesKeys.env) === 'prod' && {
+          ssl: {
+            rejectUnauthorized: false,
+          }
+        })
       }),
       inject: [ConfigService]
     }),
@@ -136,14 +145,14 @@ export class AppModule implements NestModule {
     consumer.apply(
       BearerTokenMiddleware,
     ).exclude(
-      { 
-        path: 'auth/login', 
-        method: RequestMethod.POST, 
+      {
+        path: 'auth/login',
+        method: RequestMethod.POST,
         // version: ['1', '2'] 
       },
-      { 
-        path: 'auth/register', 
-        method: RequestMethod.POST, 
+      {
+        path: 'auth/register',
+        method: RequestMethod.POST,
         // version: ['1', '2'] 
       },
     ).forRoutes('*');

@@ -1,9 +1,11 @@
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { BadRequestException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { rename } from 'fs/promises';
 import { join } from 'path';
 import { CommonService } from 'src/common/common.service';
+import { envVariablesKeys } from 'src/common/const/env.const';
 import { Director } from 'src/director/entitiy/director.entity';
 import { Genre } from 'src/genre/entities/genre.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -34,6 +36,7 @@ export class MovieService {
     private readonly commonService: CommonService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly configService: ConfigService,
   ) { }
   async findRecent() {
     const cacheData = await this.cacheManager.get('MOVIE_RECENT');
@@ -174,10 +177,14 @@ export class MovieService {
 
   /* istanbul ignore next */
   createRenameMovieFile(tempFolder: string, movieFolder: string, createMovieDto: CreateMovieDto) {
-    return rename(
-      join(process.cwd(), tempFolder, createMovieDto.movieFileName),
-      join(process.cwd(), movieFolder, createMovieDto.movieFileName),
-    );
+    if (this.configService.get<string>(envVariablesKeys.env) !== 'prod') {
+      return rename(
+        join(process.cwd(), tempFolder, createMovieDto.movieFileName),
+        join(process.cwd(), movieFolder, createMovieDto.movieFileName),
+      );
+    } else {
+      return this.commonService.saveMovieToPermanentStorage(createMovieDto.movieFileName);
+    }
   }
 
   async create(createMovieDto: CreateMovieDto, userId: number, queryRunner: QueryRunner) {
