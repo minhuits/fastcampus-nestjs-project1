@@ -1,4 +1,4 @@
-import { ConnectedSocket, MessageBody, OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, WebSocketGateway } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatService } from './chat.service';
@@ -11,7 +11,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) { }
 
   handleDisconnect(client: Socket) {
-    return;
+    const user = client.data.user;
+
+    if (user) {
+      this.chatService.removeClient(user.sub);
+    }
   }
 
   async handleConnection(client: Socket) {
@@ -22,6 +26,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       if (payload) {
         client.data.user = payload;
+        this.chatService.registerClient(payload.sub, client);
+        await this.chatService.joinUserRooms(payload, client);
       } else {
         client.disconnect();
       }
@@ -29,34 +35,5 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(e);
       client.disconnect();
     }
-  }
-
-  @SubscribeMessage('receiveMessage')
-  async receiveMessage(
-    @MessageBody() data: { message: string },
-    @ConnectedSocket() client: Socket,
-  ) {
-    console.log('receiveMessage');
-    console.log(data);
-    console.log(client);
-  }
-
-  @SubscribeMessage('sendMessage')
-  async sendMessage(
-    @MessageBody() data: { message: string },
-    @ConnectedSocket() client: Socket,
-  ) {
-    client.emit('sendMessage', {
-      ...data,
-      from: 'server',
-    });
-    client.emit('sendMessage', {
-      ...data,
-      from: 'server',
-    });
-    client.emit('sendMessage', {
-      ...data,
-      from: 'server',
-    });
   }
 }
