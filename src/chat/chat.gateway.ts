@@ -6,6 +6,7 @@ import { WsQueryRunner } from 'src/common/decorator/ws-runner.decorator';
 import { WsTransactionInterceptor } from 'src/common/interceptor/ws-transaction.interceptor';
 import { QueryRunner } from 'typeorm';
 import { ChatService } from './chat.service';
+import { CreateChatDto } from './dto/create-chat.dto';
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -44,8 +45,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('sendMessage')
   @UseInterceptors(WsTransactionInterceptor)
   async handleMessage(
-    @MessageBody() body: { message: string },
+    @MessageBody() body: CreateChatDto,
     @ConnectedSocket() client: Socket,
     @WsQueryRunner() queryRunner: QueryRunner,
-  ) { }
+  ) {
+    const payload = client.data.user;
+    await this.chatService.createMessage(payload, body, queryRunner);
+  }
 }
