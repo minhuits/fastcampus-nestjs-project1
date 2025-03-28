@@ -1,5 +1,5 @@
 import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseInterceptors } from '@nestjs/common';
+import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { RBAC } from 'src/auth/decorator/rbac.decorator';
@@ -60,7 +60,17 @@ export class MovieController {
   @Public()
   findOne(
     @Param('id', ParseIntPipe) id: number,
+    @Req() request: any
   ) {
+    const session = request.session;
+
+    const movieCount = session.moiveCount ?? {};
+
+    request.session.movieCount = {
+      ...movieCount,
+      [id]: movieCount[id] ? movieCount[id] + 1 : 1,
+    }
+
     return this.movieService.findOne(+id);
   }
 

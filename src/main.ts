@@ -6,6 +6,7 @@ import * as ffprobe from 'ffprobe-static';
 import * as ffmpegFluent from 'fluent-ffmpeg';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
+import * as session from 'express-session';
 
 ffmpegFluent.setFfmpegPath(ffmpeg.path);
 ffmpegFluent.setFfprobePath(ffprobe.path);
@@ -39,6 +40,11 @@ async function bootstrap() {
       enableImplicitConversion: true,
     }
   }));
+
+  app.use({
+    session: 'secret',
+  })
+
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
