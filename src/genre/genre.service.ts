@@ -1,32 +1,28 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/common/prisma.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateGenreDto } from './dto/create-genre.dto';
 import { UpdateGenreDto } from './dto/update-genre.dto';
+import { Genre } from './schema/genre.schema';
 
 @Injectable()
 export class GenreService {
   constructor(
-    // @InjectRepository(Genre)
-    // private readonly genreRepository: Repository<Genre>,
-    private readonly prisma: PrismaService,
+    @InjectModel(Genre.name)
+    private readonly genreModel: Model<Genre>,
   ) { }
 
   async create(createGenreDto: CreateGenreDto) {
-    return this.prisma.genre.create({
-      data: createGenreDto
-    });
+    return this.genreModel.create(createGenreDto);
+
   }
 
   findAll() {
-    return this.prisma.genre.findMany();
+    return this.genreModel.find().exec();
   }
 
   async findOne(id: number) {
-    const genre = await this.prisma.genre.findUnique({
-      where: {
-        id,
-      }
-    })
+    const genre = await this.genreModel.findById(id).exec();
 
     if (!genre) {
       throw new NotFoundException('존재하지 않는 장르입니다.');
@@ -37,52 +33,29 @@ export class GenreService {
   }
 
   async update(id: number, updateGenreDto: UpdateGenreDto) {
-    const genre = await this.prisma.genre.findUnique({
-      where: {
-        id,
-      }
-    })
+    const genre = await this.genreModel.findById(id).exec();
 
     if (!genre) {
       throw new NotFoundException('존재하지 않는 장르입니다.');
 
     }
 
-    await this.prisma.genre.update({
-      where: {
-        id
-      },
-      data: {
-        ...updateGenreDto
-      }
-    });
+    await this.genreModel.findByIdAndUpdate(id, updateGenreDto).exec();
 
-    const newGenre = await this.prisma.genre.findUnique({
-      where: {
-        id,
-      }
-    });
+    const newGenre = await this.genreModel.findById(id).exec();
 
     return newGenre;
   }
 
   async remove(id: number) {
-    const genre = await this.prisma.genre.findUnique({
-      where: {
-        id,
-      }
-    })
+    const genre = await this.genreModel.findById(id);
 
     if (!genre) {
       throw new NotFoundException('존재하지 않는 장르입니다.');
 
     }
 
-    await this.prisma.genre.delete({
-      where: {
-        id,
-      }
-    });
+    await this.genreModel.findByIdAndDelete(id);
 
     return id;
   }

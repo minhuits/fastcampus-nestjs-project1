@@ -1,77 +1,57 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/common/prisma.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateDirectorDto } from './dto/create-director.dto';
 import { UpdateDirectorDto } from './dto/update-director.dto';
+import { Director } from './schema/director.schema';
 
 @Injectable()
 export class DirectorService {
   constructor(
-    // @InjectRepository(Director)
-    // private readonly directorRepository: Repository<Director>,
-    private readonly prisma: PrismaService,
+    @InjectModel(Director.name)
+    private readonly directorModel: Model<Director>,
   ) { }
 
   create(createDirectorDto: CreateDirectorDto) {
-    return this.prisma.director.create({ data: createDirectorDto });
+    return this.directorModel.create(createDirectorDto);
   }
 
   findAll() {
-    return this.prisma.director.findMany();
+    return this.directorModel.find();
   }
 
   findOne(id: number) {
-    return this.prisma.director.findUnique({
-      where: {
-        id,
-      },
-    })
+    return this.directorModel.findById(id);
   }
 
   async update(id: number, updateDirectorDto: UpdateDirectorDto) {
-    const director = await this.prisma.director.findUnique({
-      where: {
-        id,
-      },
-    });
+    const director = await this.directorModel.findById(id);
 
     if (!director) {
       throw new NotFoundException('존재하지 않는 ID 값의 영화입니다.')
     }
 
-    await this.prisma.director.update({
-      where: {
-        id,
-      },
-      data: {
-        ...updateDirectorDto,
-      }
-    });
+    await this.directorModel.findByIdAndUpdate(id, updateDirectorDto).exec();
 
-    const newDirector = await this.prisma.director.findUnique({
-      where: {
-        id
-      },
-    });
+    const newDirector = await this.directorModel.findById(id);
+
+    // const newDirector = await this.prisma.director.findUnique({
+    //   where: {
+    //     id
+    //   },
+    // });
 
     return newDirector;
   }
 
   async remove(id: number) {
-    const director = await this.prisma.director.findUnique({
-      where: {
-        id,
-      },
-    });
+    const director = await this.directorModel.findById(id);
 
     if (!director) {
       throw new NotFoundException('존재하지 않는 ID 값의 영화입니다.')
     }
 
-    await this.prisma.director.delete({
-      where: {
-        id,
-      }
-    });
+    await this.directorModel.findByIdAndDelete(id);
 
     return id;
   }

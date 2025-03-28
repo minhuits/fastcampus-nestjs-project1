@@ -31,6 +31,7 @@ import { MovieModule } from './movie/movie.module';
 import { User } from './user/entity/user.entity';
 import { UserModule } from './user/user.module';
 import { WrokModule } from './worker/worker.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { WrokModule } from './worker/worker.module';
         BUCKET_NAME: schema.string().required(),
       }),
     }),
+    MongooseModule.forRoot('mongodb+srv://mongodb:mongodb@nestjsmongodb.yi1kv2p.mongodb.net/?retryWrites=true&w=majority&appName=NestjsMongodb'),
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         type: configService.get<string>(envVariablesKeys.dbType) as "postgres",
