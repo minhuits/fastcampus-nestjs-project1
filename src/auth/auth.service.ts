@@ -2,23 +2,23 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { envVariablesKeys } from 'src/common/const/env.const';
-import { Role, User } from 'src/user/entity/user.entity';
+import { PrismaService } from 'src/common/prisma.service';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    // @InjectRepository(User)
+    // private readonly userRepository: Repository<User>,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly prisma: PrismaService,
   ) { }
 
   parseBasicToken(rawToken: string) {
@@ -118,7 +118,7 @@ export class AuthService {
   }
 
   async authenticate(email: string, password: string) {
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: {
         email,
       }

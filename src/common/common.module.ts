@@ -1,4 +1,3 @@
-import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,6 +8,7 @@ import { v4 } from 'uuid';
 import { CommonController } from './common.controller';
 import { CommonService } from './common.service';
 import { DefaultLogger } from './loggler/default.logger';
+import { PrismaService } from './prisma.service';
 import { TaskService } from './task.service';
 
 @Module({
@@ -33,21 +33,9 @@ import { TaskService } from './task.service';
     TypeOrmModule.forFeature([
       Movie,
     ]),
-    
-    BullModule.forRoot({
-      connection: {
-        host: 'redis-15796.c340.ap-northeast-2-1.ec2.redns.redis-cloud.com',
-        port: 15796,
-        username: 'default',
-        password: '', 
-      }
-    }),
-    BullModule.registerQueue({
-      name: 'thumbnail-generation',
-    }),
   ],
   controllers: [CommonController],
-  providers: [CommonService, TaskService, DefaultLogger],
-  exports: [CommonService, DefaultLogger],
+  providers: [CommonService, TaskService, DefaultLogger, PrismaService],
+  exports: [CommonService, PrismaService],
 })
 export class CommonModule { };

@@ -1,25 +1,23 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { envVariablesKeys } from 'src/common/const/env.const';
-import { Repository } from 'typeorm';
+import { PrismaService } from 'src/common/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entity/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) { }
 
   async create(createUserDto: CreateUserDto) {
     const { email, password } = createUserDto;
 
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: {
         email,
       }
@@ -31,24 +29,26 @@ export class UserService {
 
     const hash = await bcrypt.hash(password, this.configService.get<number>(envVariablesKeys.hashRounds) as number);
 
-    await this.userRepository.save({
-      email,
-      password: hash,
+    await this.prisma.user.create({
+      data: {
+        email,
+        password: hash,
+      }
     });
 
-    return this.userRepository.findOne({
+    return this.prisma.user.findUnique({
       where: {
         email,
-      }
+      },
     });
   }
 
   findAll() {
-    return this.userRepository.find();
+    return this.prisma.user.findMany();
   }
 
   async findOne(id: number) {
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: {
         id,
       }
@@ -64,7 +64,7 @@ export class UserService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     const { password } = updateUserDto;
 
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: {
         id,
       }
@@ -72,29 +72,40 @@ export class UserService {
 
     const hashRounds = this.configService.get<number>(envVariablesKeys.hashRounds) as number;
 
-    if (!user || password === undefined) {
+    if (!user) {
       throw new NotFoundException('존재하지 않는 사용자입니다!');
     }
 
-    const hash = await bcrypt.hash(password, hashRounds);
+    let input: Prisma.UserUpdateInput = {
+      ...updateUserDto,
+    };
 
-    await this.userRepository.update(
-      { id },
-      {
-        ...updateUserDto,
+    if (password) {
+      const hash = await bcrypt.hash(password, hashRounds);
+
+      input = {
+        ...input,
         password: hash,
-      },
-    );
+      }
+    }
 
-    return this.userRepository.findOne({
+
+    await this.prisma.user.update({
+      where: {
+        id
+      },
+      data: input,
+    });
+
+    return await this.prisma.user.findUnique({
       where: {
         id,
-      },
+      }
     });
   }
 
   async remove(id: number) {
-    const user = await this.userRepository.findOne({
+    const user = await this.prisma.user.findUnique({
       where: {
         id,
       }
@@ -104,7 +115,11 @@ export class UserService {
       throw new NotFoundException('존재하지 않는 사용입니다!');
     }
 
-    await this.userRepository.delete(id);
+    await this.prisma.user.delete({
+      where: {
+        id
+      }
+    });
 
     return id;
   }

@@ -169,3 +169,5 @@ SET "likeCount" = (
    );
 
 create database test;
+
+create database prisma;

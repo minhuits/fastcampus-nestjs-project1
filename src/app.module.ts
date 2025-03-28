@@ -14,6 +14,8 @@ import { AuthGuard } from './auth/guard/auth.guard';
 import { RBACGuard } from './auth/guard/rbac.guard';
 import { BearerTokenMiddleware } from './auth/middleware/beare-token.middleware';
 import { ChatModule } from './chat/chat.module';
+import { ChatRoom } from './chat/entity/chat-room.entity';
+import { Chat } from './chat/entity/chat.entity';
 import { envVariablesKeys } from './common/const/env.const';
 import { QueryFailedExceptionsFilter } from './common/filter/exception.filter';
 import { ResponseTimeInterceptor } from './common/interceptor/response-time.interceptor';
@@ -43,6 +45,7 @@ import { WrokModule } from './worker/worker.module';
         DB_USERNAME: schema.string().required(),
         DB_PASSWORD: schema.string().required(),
         DB_DATABASE: schema.string().required(),
+        DB_URL: schema.string().required(),
         HASH_ROUNDS: schema.number().required(),
         ACCESS_TOKEN_SECRET: schema.string().required(),
         REFRESH_TOKEN_SECRET: schema.string().required(),
@@ -55,11 +58,12 @@ import { WrokModule } from './worker/worker.module';
     TypeOrmModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         type: configService.get<string>(envVariablesKeys.dbType) as "postgres",
-        host: configService.get<string>(envVariablesKeys.dbHost),
-        port: configService.get<number>(envVariablesKeys.dbPort),
-        username: configService.get<string>(envVariablesKeys.dbUserName),
-        password: configService.get<string>(envVariablesKeys.dbPassword),
-        database: configService.get<string>(envVariablesKeys.dbDatabase),
+        url: configService.get<string>(envVariablesKeys.dbUrl),
+        // host: configService.get<string>(envVariablesKeys.dbHost),
+        // port: configService.get<number>(envVariablesKeys.dbPort),
+        // username: configService.get<string>(envVariablesKeys.dbUserName),
+        // password: configService.get<string>(envVariablesKeys.dbPassword),
+        // database: configService.get<string>(envVariablesKeys.dbDatabase),
         entities: [
           Movie,
           MovieDetail,
@@ -67,6 +71,8 @@ import { WrokModule } from './worker/worker.module';
           Director,
           Genre,
           User,
+          Chat,
+          ChatRoom,
         ],
         synchronize: configService.get<string>(envVariablesKeys.env) === 'prod' ? false : true,
         ...(configService.get<string>(envVariablesKeys.env) === 'prod' && {
