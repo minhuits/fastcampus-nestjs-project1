@@ -1,8 +1,14 @@
+import * as ffmpeg from '@ffmpeg-installer/ffmpeg';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as ffprobe from 'ffprobe-static';
+import * as ffmpegFluent from 'fluent-ffmpeg';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
+
+ffmpegFluent.setFfmpegPath(ffmpeg.path);
+ffmpegFluent.setFfprobePath(ffprobe.path);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -25,7 +31,7 @@ async function bootstrap() {
   });
 
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
-  
+
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,

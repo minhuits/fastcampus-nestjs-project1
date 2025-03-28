@@ -1,6 +1,6 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConditionalModule, ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/guard/auth.guard';
 import { RBACGuard } from './auth/guard/rbac.guard';
 import { BearerTokenMiddleware } from './auth/middleware/beare-token.middleware';
+import { ChatModule } from './chat/chat.module';
 import { envVariablesKeys } from './common/const/env.const';
 import { QueryFailedExceptionsFilter } from './common/filter/exception.filter';
 import { ResponseTimeInterceptor } from './common/interceptor/response-time.interceptor';
@@ -27,7 +28,7 @@ import { Movie } from './movie/entity/movie.entity';
 import { MovieModule } from './movie/movie.module';
 import { User } from './user/entity/user.entity';
 import { UserModule } from './user/user.module';
-import { ChatModule } from './chat/chat.module';
+import { WrokModule } from './worker/worker.module';
 
 @Module({
   imports: [
@@ -115,7 +116,11 @@ import { ChatModule } from './chat/chat.module';
     GenreModule,
     AuthModule,
     UserModule,
-    ChatModule
+    ChatModule,
+    ConditionalModule.registerWhen(
+      WrokModule,
+      (env: NodeJS.ProcessEnv) => env['TYPE'] === 'worker',
+    ),
   ],
 
   providers: [
