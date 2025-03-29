@@ -12,15 +12,6 @@ import { Movie, MovieSchema } from './schema/movie.schema';
 
 @Module({
   imports: [
-    // TypeOrmModule.forFeature([
-    //   Movie,
-    //   MovieDetail,
-    //   MovieUserLike,
-    //   Director,
-    //   Genre,
-    //   User,
-    // ]),
-
     MongooseModule.forFeature([
       {
         name: Movie.name,

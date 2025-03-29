@@ -13,15 +13,28 @@ export class GenreService {
   ) { }
 
   async create(createGenreDto: CreateGenreDto) {
-    return this.genreModel.create(createGenreDto);
+    // const result = await this.genreModel.create(createGenreDto);
 
+    // return {
+    //   ...result.toObject(),
+    //   _id: result._id.toString(),
+    // };
+
+    // return result.toObject({
+    //   transform: (model, ret)=> {
+    //     ret._id = ret._id.toString();
+    //     return ret;
+    //   }
+    // })
+
+    return this.genreModel.create(createGenreDto);
   }
 
   findAll() {
     return this.genreModel.find().exec();
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const genre = await this.genreModel.findById(id).exec();
 
     if (!genre) {
@@ -32,7 +45,7 @@ export class GenreService {
     return genre;
   }
 
-  async update(id: number, updateGenreDto: UpdateGenreDto) {
+  async update(id: string, updateGenreDto: UpdateGenreDto) {
     const genre = await this.genreModel.findById(id).exec();
 
     if (!genre) {
@@ -47,7 +60,7 @@ export class GenreService {
     return newGenre;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const genre = await this.genreModel.findById(id);
 
     if (!genre) {

@@ -20,11 +20,11 @@ export class DirectorService {
     return this.directorModel.find();
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.directorModel.findById(id);
   }
 
-  async update(id: number, updateDirectorDto: UpdateDirectorDto) {
+  async update(id: string, updateDirectorDto: UpdateDirectorDto) {
     const director = await this.directorModel.findById(id);
 
     if (!director) {
@@ -44,7 +44,7 @@ export class DirectorService {
     return newDirector;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const director = await this.directorModel.findById(id);
 
     if (!director) {

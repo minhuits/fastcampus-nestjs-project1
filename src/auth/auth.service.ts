@@ -2,23 +2,26 @@ import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { Model } from 'mongoose';
 import { envVariablesKeys } from 'src/common/const/env.const';
 import { PrismaService } from 'src/common/prisma.service';
+import { User } from 'src/user/schema/user.schema';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    // @InjectRepository(User)
-    // private readonly userRepository: Repository<User>,
     private readonly userService: UserService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
     private readonly prisma: PrismaService,
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>
   ) { }
 
   parseBasicToken(rawToken: string) {
@@ -118,10 +121,12 @@ export class AuthService {
   }
 
   async authenticate(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email,
-      }
+
+    const user = await this.userModel.findOne({
+      email,
+    }, {
+      password: 1,
+      role: 1,
     });
 
     if (!user) {
@@ -137,12 +142,12 @@ export class AuthService {
     return user;
   }
 
-  async issueToken(user: { id: any, role: Role }, isRefreshToken: boolean): Promise<string> {
+  async issueToken(user: { _id: any, role: Role }, isRefreshToken: boolean) {
     const refreshSecret = this.configService.get<string>(envVariablesKeys.refreshTokenSecret);
     const accessSecret = this.configService.get<string>(envVariablesKeys.accessTokenSecret);
 
     return this.jwtService.signAsync({
-      sub: user.id,
+      sub: user._id,
       role: user.role,
       type: isRefreshToken ? 'refresh' : 'access',
     }, {

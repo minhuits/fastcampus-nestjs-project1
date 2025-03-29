@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Types, Document } from "mongoose";
-import { Movie } from "./movie.schema";
+import { Document } from "mongoose";
 
 @Schema({
   timestamps: true
@@ -11,13 +10,13 @@ export class MovieDetail extends Document {
   })
   detail: string;
 
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'Movie',
-    required: true,
-    unique: true,
-  })
-  movie: Movie;
+  // @Prop({
+  //   type: Types.ObjectId,
+  //   ref: 'Movie',
+  //   required: true,
+  //   unique: true,
+  // })
+  // movie: Movie;
 }
 
 export const MovieDetailSchema = SchemaFactory.createForClass(MovieDetail);

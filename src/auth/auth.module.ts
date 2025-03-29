@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { CommonModule } from 'src/common/common.module';
-import { User } from 'src/user/entity/user.entity';
+import { User, UserSchema } from 'src/user/schema/user.schema';
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -10,8 +10,11 @@ import { LocalStrategy } from './strategy/local.strategy';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      User,
+    MongooseModule.forFeature([
+      {
+        name: User.name,
+        schema: UserSchema,
+      },
     ]),
     JwtModule.register({}),
     UserModule,

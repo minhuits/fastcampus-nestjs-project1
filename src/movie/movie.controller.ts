@@ -1,5 +1,5 @@
 import { CacheKey, CacheTTL, CacheInterceptor as CI } from '@nestjs/cache-manager';
-import { Body, ClassSerializerInterceptor, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Req, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 import { Public } from 'src/auth/decorator/public.decorator';
@@ -15,7 +15,7 @@ import { MovieService } from './movie.service';
 @Controller('movie')
 @ApiBearerAuth()
 @ApiTags('movie')
-@UseInterceptors(ClassSerializerInterceptor)
+// @UseInterceptors(ClassSerializerInterceptor)
 export class MovieController {
   constructor(private readonly movieService: MovieService) { }
   // 읽기: 전체 가져오기
@@ -39,7 +39,7 @@ export class MovieController {
   @UseInterceptors(CacheInterceptor)
   findAll(
     @Query() dto: GetMoviesDto,
-    @UserId() userId?: number,
+    @UserId() userId?:string,
   ) {
     return this.movieService.findAll(dto, userId);
   }
@@ -56,7 +56,7 @@ export class MovieController {
   @Get(':id')
   @Public()
   findOne(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Req() request: any
   ) {
     const session = request.session;
@@ -68,7 +68,7 @@ export class MovieController {
       [id]: movieCount[id] ? movieCount[id] + 1 : 1,
     }
 
-    return this.movieService.findOne(+id);
+    return this.movieService.findOne(id);
   }
 
   // 생성
@@ -76,7 +76,7 @@ export class MovieController {
   @RBAC(Role.admin)
   create(
     @Body() body: CreateMovieDto,
-    @UserId() userId: number,
+    @UserId() userId: string,
   ) {
     return this.movieService.create(
       body,
@@ -88,7 +88,7 @@ export class MovieController {
   @Patch(':id')
   @RBAC(Role.admin)
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: string,
     @Body() body: UpdateMovieDto,
   ) {
     return this.movieService.update(id, body);
@@ -97,22 +97,22 @@ export class MovieController {
   // 삭제
   @Delete(':id')
   @RBAC(Role.admin)
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: string) {
     return this.movieService.remove(id);
   }
 
   @Post(':id/like')
   creatMovieLike(
-    @Param('id', ParseIntPipe) movieId: number,
-    @UserId() userId: number,
+    @Param('id') movieId: string,
+    @UserId() userId: string,
   ) {
     return this.movieService.toggleMovieLike(movieId, userId, true);
   }
 
   @Post(':id/dislike')
   creatMovieDislike(
-    @Param('id', ParseIntPipe) movieId: number,
-    @UserId() userId: number,
+    @Param('id') movieId: string,
+    @UserId() userId: string,
   ) {
     return this.movieService.toggleMovieLike(movieId, userId, false);
   }

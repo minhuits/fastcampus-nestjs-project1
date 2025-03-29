@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Types, Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { Movie } from "src/movie/schema/movie.schema";
 
 @Schema({
@@ -22,3 +22,10 @@ export class Genre extends Document {
 }
 
 export const GenreSchema = SchemaFactory.createForClass(Genre);
+
+// GenreSchema.set('toObject', {
+//   transform: (model, ret) => {
+//     ret._id = ret._id.toString();
+//     return ret;
+//   }
+// });

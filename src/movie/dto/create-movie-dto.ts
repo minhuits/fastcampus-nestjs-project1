@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateMovieDto {
   @IsNotEmpty()
@@ -10,7 +10,7 @@ export class CreateMovieDto {
     example: '겨율왕국',
   })
   title: string;
-  
+
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -18,25 +18,25 @@ export class CreateMovieDto {
     example: '엘사와 안나의 이야기',
   })
   detail: string;
-  
+
   @IsNotEmpty()
-  @IsNumber()
+  @IsString()
   @ApiProperty({
     description: '감독 객체 ID',
     example: 1,
   })
-  directorId: number;
-  
+  directorId: string;
+
   @IsArray()
   @ArrayNotEmpty()
-  @IsNumber({}, { each: true })
-  @Type(() => Number)
+  @IsString({ each: true })
+  @Type(() => String)
   @ApiProperty({
     description: '장르 객체 IDs',
     example: [1, 2, 3],
   })
-  genreIds: number[];
-  
+  genreIds: string[];
+
   @IsString()
   @ApiProperty({
     description: '영화 파일 이름',
